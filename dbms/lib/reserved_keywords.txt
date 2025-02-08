@@ -1,0 +1,12 @@
+select
+insert
+update
+delete
+create
+drop
+table
+database
+primary
+int
+date
+string
