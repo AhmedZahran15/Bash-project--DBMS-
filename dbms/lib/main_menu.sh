@@ -4,7 +4,7 @@ main_menu() {
         echo "==================== Main Menu ===================="
         PS3=">> Choose an option: "
         options=("Create Database" "List Databases" "Connect to Database" "Drop Database" "Exit")
-        
+        echo "${options[@]}"
         select opt in "${options[@]}"; do
             case $REPLY in
                 1) create_db; break ;;
