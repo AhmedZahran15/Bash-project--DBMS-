@@ -11,9 +11,9 @@ table_menu() {
                 2) list_tables; break ;;
                 3) drop_table; break ;;
                 4) insert_row; break ;;
-                5) select_table; break ;;
-                6) delete_row; break ;;
-                7) update_row; break ;;
+                5) select_from_table; break ;;
+                6) delete_from_table; break ;;
+                7) update_table; break ;;
                 8) return;;
                 *) echo "Invalid option!"; break ;;
             esac
