@@ -11,8 +11,6 @@ validate_identifier() {
 }
 
 removeQuotes() {
-    # Read input with trailing spaces and quotes
-    # Remove surrounding quotes (either "..." or '...')
     local input="$1"
     if [[ "$input" =~ ^\"(.*)\"$ ]]; then
         input="${BASH_REMATCH[1]}"
