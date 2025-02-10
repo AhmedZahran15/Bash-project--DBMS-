@@ -1,3 +1,8 @@
+list_tables() {
+    echo "Available Tables:"
+    ls "$DB_DIR/$CURRENT_DB" | grep ".metadata$" | sed 's/.metadata$//' | awk '{print NR".", $0}'
+}
+
 create_table() {
     read -p "Enter table name: " tblname
     tblname=$(removeQuotes "$tblname")
