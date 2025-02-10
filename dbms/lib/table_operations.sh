@@ -4,7 +4,7 @@ list_tables() {
 }
 
 create_table() {
-    read -p "Enter table name: " tblname
+    read -ep "Enter table name: " tblname
     tblname=$(removeQuotes "$tblname")
     if ! validate_identifier "$tblname"; then return; fi
     local metadata="$DB_DIR/$CURRENT_DB/$tblname.metadata"
@@ -21,7 +21,7 @@ create_table() {
     local has_primary=false
     declare -a column_names
     while true; do
-        read -p "Column definition: " col_name col_type col_primary
+        read -ep "Column definition: " col_name col_type col_primary
         if [[ -z $col_primary ]]; then
             col_def=$(echo "$col_name $col_type" | tr '[A-Z]' '[a-z]')
         else
@@ -54,7 +54,7 @@ create_table() {
 }
 
 drop_table() {
-    read -p "Enter table name: " tblname
+    read -ep "Enter table name: " tblname
     local metadata="$DB_DIR/$CURRENT_DB/$tblname.metadata"
     local datafile="$DB_DIR/$CURRENT_DB/$tblname.data"
 
@@ -68,7 +68,7 @@ drop_table() {
 }
 
 insert_row() {
-    read -p "Enter table name: " tblname
+    read -ep "Enter table name: " tblname
     local metadata="$DB_DIR/$CURRENT_DB/$tblname.metadata"
     local datafile="$DB_DIR/$CURRENT_DB/$tblname.data"
 
@@ -90,7 +90,7 @@ insert_row() {
         local col_type=$(echo $col | awk '{print $2}')
         local is_primary=$(echo $col | awk '{print $3=="primary"}')
         while true; do
-            read -p "Enter value for $col_name ($col_type): " value
+            read -ep "Enter value for $col_name ($col_type): " value
             if ! validate_data_type "$value" "$col_type"; then
                 echo "Invalid $col_type value!"
                 continue
@@ -121,7 +121,7 @@ select_from_table() {
     declare -a conditions
     if [[ -z $1 ]]; then
         declare -a col_names
-        read -p "Enter table name: " tblname
+        read -ep "Enter table name: " tblname
         local datafile="$DB_DIR/$CURRENT_DB/$tblname.data"
         local metafile="$DB_DIR/$CURRENT_DB/$tblname.metadata"
 
@@ -130,7 +130,7 @@ select_from_table() {
             return
         fi
 
-        read -p "Enter conditions in form "col=value" and separated by ',' or type 'all' to get all data : " line
+        read -ep "Enter conditions in form "col=value" and separated by ',' or type 'all' to get all data : " line
         if [[ $line != "all" ]] && ! [[ $line =~ ^([a-zA-Z_][a-zA-Z0-9_]*=[^,]+)(,[a-zA-Z_][a-zA-Z0-9_]*=[^,]+)*$ ]]; then
             echo "Invalid conditions format!"
             return
@@ -169,7 +169,7 @@ select_from_table() {
 }
 
 delete_from_table() {
-    read -p "Enter table name: " table_name
+    read -ep "Enter table name: " table_name
     local datafile="$DB_DIR/$CURRENT_DB/$table_name.data"
     local metafile="$DB_DIR/$CURRENT_DB/$table_name.metadata"
     if ! [[ -f $datafile ]]; then
@@ -178,7 +178,7 @@ delete_from_table() {
     fi
 
     columns=$(cat $metafile | cut -d' ' -f1)
-    read -p $'Enter delete conditions in format colname=value separated by "," or type 'all' to get all data : ' conditions
+    read -ep $'Enter delete conditions in format colname=value separated by "," or type 'all' to get all data : ' conditions
     IFS=' ' read -a lines <<<$(echo $(select_from_table "$table_name" "$conditions"))
     for index in ${!lines[@]}; do
         if [[ $index -eq 0 ]] && [[ $conditions == "all" ]]; then
@@ -190,7 +190,7 @@ delete_from_table() {
 }
 
 update_table() {
-    read -p "Enter table name:" table_name
+    read -ep "Enter table name:" table_name
     local datafile="$DB_DIR/$CURRENT_DB/$table_name.data"
     local metafile="$DB_DIR/$CURRENT_DB/$table_name.metadata"
 
@@ -200,7 +200,7 @@ update_table() {
     fi
 
     columns=$(cat $metafile | cut -d' ' -f1)
-    read -p 'Enter delete conditions in format colname=value separated by "," or type 'all' to get all data : ' conditions
+    read -ep 'Enter delete conditions in format colname=value separated by "," or type 'all' to get all data : ' conditions
     IFS=' ' read -a lines <<<$(echo $(select_from_table "$table_name" "$conditions"))
 
     if [[ -z "$lines" ]]; then
@@ -208,8 +208,8 @@ update_table() {
         return 1
     fi
 
-    read -p "Column Name: " column
-    read -p "New value: " value
+    read -ep "Column Name: " column
+    read -ep "New value: " value
 
     if ! grep -q "$column" $metafile; then
         echo "Column '$column' not found in metadata!"
