@@ -23,16 +23,24 @@ removeQuotes() {
 }
 
 validate_column_def() {
-    [[ $1 =~ ^[a-zA-Z_]+\ +(int|string|date)(\ +primary)?$ ]] || return 1
+    if [[ $1 =~ ^[a-z_]+[[:space:]]+(int|string|date|float)([[:space:]]+primary)?$ ]]; then
+        return 0
+    fi
+    return 1
 }
 
 validate_data_type() {
     local value="$1" dtype="$2"
     case "$dtype" in
-        int) [[ "$value" =~ ^-?[0-9]+$ ]] ;;
-        date) [[ "$value" =~ ^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$ ]] ;;
-        string) true ;;  # Accept any string
-        *) return 1 ;;
+    int) if [[ "$value" =~ ^-?[0-9]+$ ]]; then
+        return 0
+    fi ;;
+    date) if [[ "$value" =~ ^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$ ]]; then return 0; fi ;;
+    string) return 0 ;;
+    float) if [[ "$value" =~ ^-?[0-9]+(\.[0-9]+)?$ ]]; then
+        return 0
+    fi ;;
+    *) return 1 ;;
     esac
 }
 
@@ -42,14 +50,12 @@ is_reserved_keyword() {
 }
 
 check_pk_exists() {
-    local tblname="$1" pk_value="$2"
+    local tblname="$1" pk_value="$2" pk_index="$3"
     local metadata="$DB_DIR/$CURRENT_DB/$tblname.metadata"
     local datafile="$DB_DIR/$CURRENT_DB/$tblname.data"
-    
-    # Find primary key column index
-    local pk_col=$(awk '/primary/ {print NR}' "$metadata")
-    [[ -z $pk_col ]] && return 1
-    
-    # Check if value exists
-    awk -F: -v col="$pk_col" -v val="$pk_value" '$col == val {found=1; exit} END {exit !found}' "$datafile"
+    res=$(awk -v pk_index="$pk_index" -v pk_value="$pk_value" -F',' '$pk_index == pk_value' "$datafile")
+    if [[ -z $res ]]; then
+        return 1
+    fi
+    return 0
 }
