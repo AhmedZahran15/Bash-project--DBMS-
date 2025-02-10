@@ -1,6 +1,6 @@
 create_db() {
     read -ep "Enter database name: " dbname
-    dbname=$(removeQuotes $dbname)
+    dbname=$(removeQuotes "$dbname")
     if ! validate_identifier "$dbname"; then return; fi
     
     if [[ -d "$DB_DIR/$dbname" ]]; then
