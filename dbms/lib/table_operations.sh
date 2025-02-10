@@ -96,6 +96,10 @@ insert_row() {
                 continue
             fi
             let ind=index+1
+            if [[ $is_primary -eq 1 ]] && [[ -z $value ]]; then
+                echo "Primary key cannot be empty!"
+                continue
+            fi
             if [[ $is_primary -eq 1 ]] && check_pk_exists "$tblname" "$value" $ind; then
                 echo "Primary key $value already exists!"
                 continue
@@ -200,7 +204,7 @@ update_table() {
     fi
 
     columns=$(cat $metafile | cut -d' ' -f1)
-    read -ep 'Enter delete conditions in format colname=value separated by "," or type 'all' to get all data : ' conditions
+    read -ep 'Enter update conditions in format colname=value separated by "," or type 'all' to get all data : ' conditions
     IFS=' ' read -a lines <<<$(echo $(select_from_table "$table_name" "$conditions"))
 
     if [[ -z "$lines" ]]; then
@@ -216,6 +220,11 @@ update_table() {
         return 1
     fi
     col_index=$(awk -v col="$column" '$1 == col {print NR}' "$metafile")
+    is_primary=$(awk -v col_index="$col_index" 'NR == col_index && /primary/ {print 1}' "$metafile")
+    if [[ $is_primary -eq 1 ]]; then
+        echo "Primary key cannot be updated!"
+        return 1
+    fi
     declare -a updated_lines
     for line in "${lines[@]}"; do
         updated_line=$(echo $line | awk -v col_index="$col_index" -v value="$value" -F',' -v OFS=',' '{$col_index=value; print}')
