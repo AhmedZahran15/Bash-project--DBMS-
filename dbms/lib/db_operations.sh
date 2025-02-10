@@ -1,5 +1,5 @@
 create_db() {
-    read -p "Enter database name: " dbname
+    read -ep "Enter database name: " dbname
     dbname=$(removeQuotes $dbname)
     if ! validate_identifier "$dbname"; then return; fi
     
@@ -21,7 +21,7 @@ list_dbs() {
 }
 
 connect_db() {
-    read -p "Enter database name: " dbname
+    read -ep "Enter database name: " dbname
     if [[ -d "$DB_DIR/$dbname" ]]; then
         CURRENT_DB="$dbname"
         table_menu
@@ -31,7 +31,7 @@ connect_db() {
 }
 
 drop_db() {
-    read -p "Enter database name to drop: " dbname
+    read -ep "Enter database name to drop: " dbname
     if [[ -d "$DB_DIR/$dbname" ]]; then
         rm -r "$DB_DIR/$dbname"
         echo "Database '$dbname' dropped."
