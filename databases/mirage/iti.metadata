@@ -1,3 +1,0 @@
-id int primary
-name string
-age int
